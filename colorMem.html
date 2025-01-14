@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *,
+        *::after,
+        *::before {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100svw;
+            height: 100svh;
+            display: grid;
+            grid-template-columns: minmax(auto-fit, 1fr);
+            place-content: center;
+            background-color: #333;
+            font-size: clamp(0.8rem, 1rem, 1.2rem);
+            gap: 2rem;
+        }
+
+        .tiles {
+            width: max-content;
+            display: grid;
+            grid-template-columns: repeat(4, 6.25rem);
+            gap: 1rem;
+            margin-inline: auto;
+        }
+
+        .tile {
+            height: 6.25rem;
+            width: 6.25rem;
+            background-color: #333;
+            border: 0.3rem solid #0b5aeb;
+            cursor: pointer;
+            border-radius: 50%;
+            outline: 0.3rem ridge #12e4c8;
+            outline-offset: -0.5rem;
+            transition: all 300ms ease-in-out;
+        }
+
+        #youWon {
+            display: none;
+            justify-content: center;
+            align-items: baseline;
+            flex-direction: column;
+            
+        }
+        #winner,
+        #newGame {
+            text-align: center;
+            letter-spacing: 0.1rem;
+            font-weight: 700;
+            width: 100%;
+            padding-block: 0.5rem;
+        }
+
+        #winner {
+            color: gold;
+            text-shadow: 0 0.1rem 0.2rem rebeccapurple;
+            font-size: 2.5rem;
+        }
+
+        #newGame {
+            color: rebeccapurple;
+            text-shadow: 0 0.1rem 0.2rem gold;
+            font-size: 1.75rem;
+        }
+
+        .title {
+            text-align: center;
+            letter-spacing: 0.2rem;
+            font-weight: 700;
+            width: 100%;
+            padding-block: 0.5rem;
+            color: blue;
+            text-shadow: 0 0.05rem 0.1rem aquamarine;
+            font-size: clamp(2rem, 4ch, 6rem);
+        }
+
+        #membycol {
+            width: max-content;
+            display: grid;
+            grid-template-columns: minmax(auto-fit, 1fr);
+            place-content: center;
+            gap: 1rem;
+            margin-inline: auto;
+        }
+
+
+    </style>
+    <title>Memory By Colour</title>
+</head>
+<body>
+    <div id="membycol">
+        <h1 class="title">Memory By Colour</h1>
+        <div id="youWon">
+        <h1 id="winner"></h1>
+        <h2 id="newGame"></h2>
+        </div>
+        <section class="tiles"></section>
+    </div>
+<script>
+    const tilesContainer = document.querySelector('.tiles');
+    const colours = ['rebeccapurple', 'aquamarine', 'crimson', 'blue', 'dodgerblue', 'gold', 'greenyellow', 'teal'];
+    const colourPickList = [...colours, ...colours];
+    const tileCount = colourPickList.length;
+
+    // Game State
+    let revealedCount = 0;
+    let activeTile = null;
+    let awaitingEndOfMove = false;
+
+    function buildTile(colour) {
+        const element = document.createElement('div');
+        element.classList.add('tile');
+        element.setAttribute('data-colour', colour);
+        element.setAttribute('data-revealed', false);
+
+        element.addEventListener('click', () => {
+            const revealed = element.getAttribute('data-revealed');
+
+            if (awaitingEndOfMove
+                || revealed === 'true'
+                || element ===  activeTile
+            ) {
+                return;
+            }
+
+            element.style.backgroundColor = colour;
+            element.style.borderColor = '#12e4c8';
+            element.style.outlineColor = '#0b5aeb';
+
+            // Set Active Tile
+            if(!activeTile) {
+                activeTile = element;
+
+                return;
+            }
+
+            const colourToMatch = activeTile.getAttribute('data-colour');
+
+            if (colourToMatch === colour) {
+                activeTile.setAttribute('data-revealed', 'true');
+                element.setAttribute('data-revealed', 'true');
+
+                awaitingEndOfMove = false;
+                activeTile = null;
+                revealedCount += 2;
+
+                if (revealedCount === tileCount) {
+                    const youWon = document.querySelector('#youWon');
+                    const winner = document.querySelector('#winner');
+                    const newGame = document.querySelector('#newGame');
+                    youWon.style.display = 'flex';
+                    winner.innerHTML = "Congratulations!! You Have Won!";
+                    newGame.innerHTML = "Refresh To Start A New Game";
+
+                }
+
+                return;
+            }
+
+            awaitingEndOfMove = true;
+
+            setTimeout(() => {
+                element.style.backgroundColor = null;
+                element.style.borderColor = null;
+                element.style.outlineColor = null;
+                activeTile.style.backgroundColor = null;
+                activeTile.style.borderColor = null;
+                activeTile.style.outlineColor = null;
+
+                awaitingEndOfMove = false;
+                activeTile = null;
+            }, 1000);
+
+            console.log(activeTile);
+
+        });
+
+        return element;
+    }
+
+    // Build up tiles
+    for (let i = 0; i < tileCount; i++) {
+        const randomIndex = Math.floor(Math.random() * colourPickList.length);
+        const colour = colourPickList[randomIndex];
+        const tile = buildTile(colour);
+
+        colourPickList.splice(randomIndex, 1);
+        tilesContainer.appendChild(tile);
+    }
+</script>
+</body>
+</html>
