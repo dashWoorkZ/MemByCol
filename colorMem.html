@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Courtesy of dccode https://www.youtube.com/watch?v=bznJPt4t_4s -->
+ <!-- Learn the Javascript DOM with this project - Memory Game -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -90,6 +92,31 @@
             gap: 1rem;
             margin-inline: auto;
         }
+        
+        #reload {
+            margin-inline: auto;
+            border: 0.2rem groove purple;
+            outline: 0.2rem ridge gold;
+            display: inline flex;
+            text-align: center;
+            color: blue;
+            text-shadow: 0 0.02675em 0.02675rem gold;
+            font-size: clamp(1rem, 1.2ch, 1.5rem);
+            font-weight: 700;
+            letter-spacing: 0.05rem;
+            background-color: skyblue;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            padding-inline: 0.5rem;
+            padding-block: 0.5rem;
+
+            &:hover {
+                color: gold;
+                text-shadow: 0 0.02675em 0.02675rem blue;
+                border: 0.2rem groove gold;
+                outline: 0.2rem ridge rebeccapurple;
+            }
+        }
 
 
     </style>
@@ -98,11 +125,11 @@
 <body>
     <div id="membycol">
         <h1 class="title">Memory By Colour</h1>
-        <div id="youWon">
-        <h1 id="winner"></h1>
-        <h2 id="newGame"></h2>
-        </div>
         <section class="tiles"></section>
+        <div id="youWon">
+            <h1 id="winner"></h1>
+            <button id="reload"></button>
+        </div>
     </div>
 <script>
     const tilesContainer = document.querySelector('.tiles');
@@ -110,10 +137,11 @@
     const colourPickList = [...colours, ...colours];
     const tileCount = colourPickList.length;
 
-    // Game State
-    let revealedCount = 0;
-    let activeTile = null;
-    let awaitingEndOfMove = false;
+    function gameState() {
+        let revealedCount = 0;
+        let activeTile = null;
+        let awaitingEndOfMove = false;
+    
 
     function buildTile(colour) {
         const element = document.createElement('div');
@@ -147,7 +175,8 @@
             if (colourToMatch === colour) {
                 activeTile.setAttribute('data-revealed', 'true');
                 element.setAttribute('data-revealed', 'true');
-
+                const reload = document.getElementById('reload');
+                reload.textContent = 'Reload';
                 awaitingEndOfMove = false;
                 activeTile = null;
                 revealedCount += 2;
@@ -156,11 +185,15 @@
                     const youWon = document.querySelector('#youWon');
                     const winner = document.querySelector('#winner');
                     const newGame = document.querySelector('#newGame');
-                    youWon.style.display = 'flex';
+                    youWon.style.display = 'inline flex';
                     winner.innerHTML = "Congratulations!! You Have Won!";
-                    newGame.innerHTML = "Refresh To Start A New Game";
-
-                }
+               }
+                
+                reload.addEventListener("click", () => {
+                  setTimeout(() => {
+                    window.location.reload(true);
+                  }, 200);
+                });
 
                 return;
             }
@@ -195,6 +228,8 @@
         colourPickList.splice(randomIndex, 1);
         tilesContainer.appendChild(tile);
     }
+    }
+    gameState();
 </script>
 </body>
 </html>
